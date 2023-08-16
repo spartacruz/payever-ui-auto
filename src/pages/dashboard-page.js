@@ -45,7 +45,7 @@ class DashboardPage {
         if (value == 'Fashion') {
             pageVariables.push(await this.widgetProducts);
             pageVariables.push(await this.widgetShops);
-            pageVariables.push(await this.widgetMessage);
+            // pageVariables.push(await this.widgetMessage); //not exist element
         }
 
         if (value == 'Santander') {
