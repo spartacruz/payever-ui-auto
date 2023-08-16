@@ -1,12 +1,12 @@
 const { By } = require('selenium-webdriver');
 const { until } = require('selenium-webdriver');
-let BasePage = require('../pages/base-page.js');
+let testData = require('../data/test-data.js');
 const WAITING_ELEMENT_TIMEOUT = 15000 //milis
 
-class LoginPage extends BasePage {
-    constructor(){
-        super();
-
+class LoginPage {
+    constructor(driver){
+        this.driver = driver;
+        //Fashion
         this.loginTitle = By.css('div[class="registration-header-title"]');
         this.firstNameField = By.css('input[formcontrolname="firstName"]');
         this.firstNameInputField = By.css('input[formcontrolname="firstName"]');
@@ -19,12 +19,27 @@ class LoginPage extends BasePage {
 
         this.companyNameField = By.css('input[formcontrolname="name"]');
         this.phoneNumberField = By.css('input[formcontrolname="phoneNumber"]');
-        this.gettingStartedWithPayever = By.xpath("//div[contains(text(), ' Get started with payever')]")
+        this.gettingStartedWithPayever = By.xpath("//div[contains(text(), ' Get started with payever')]");
 
+        //Santander
+        this.santanderCompanyNameLabel = this.santanderFormRegistrationLabel('Company name');
+        this.santanderPhoneNumberLabel = this.santanderFormRegistrationLabel('Phone Number');
+        this.santanderVATNumberLabel = this.santanderFormRegistrationLabel('VAT number');
+        this.santanderIndustryLabel = this.santanderFormRegistrationLabel('Industry');
+        this.santanderIndustryDropdownValueList = By.xpath("//div[@role='listbox']//mat-option");
     };
 
     async goToPage(value){
-        await this.goToUrl(`https://commerceos.staging.devpayever.com/registration/${value}`);
+        await this.driver.get(`https://commerceos.staging.devpayever.com/registration/${value}`);
+    }
+
+    async santanderFormRegistrationLabel(textValue){
+        return By.xpath(`//*[contains(text(), '${textValue}')]/..//input`);
+    }
+
+    async santanderFormRegistrationChevronDropdown(textValue) {
+        return By.xpath(`//*[contains(text(), '${textValue}')]/../../*[contains(@class, 'dropdown-arrow')]`);
+        
     }
 
     async elementPageVariablesFirstScreen(){
@@ -40,22 +55,63 @@ class LoginPage extends BasePage {
         return pageVariables
     }
 
-    async elementPageVariablesSecondScreen(){
-        const pageVariables = [
-            this.companyNameField,
-            this.phoneNumberField
-        ]
+    async elementPageVariablesSecondScreen(page){
+        let pageVariables = []
+        if (page == 'fashion' ){
+            pageVariables = [
+                this.companyNameField,
+                this.phoneNumberField
+            ]
+        }
+        
+        if (page == 'santander' ){
+            pageVariables = [
+                await this.santanderCompanyNameLabel,
+                await this.santanderPhoneNumberLabel,
+                await this.santanderVATNumberLabel
+            ]
+        }
+        
         return pageVariables
     }
 
-    async performSendKeys(selector, value) {
+    async modifyLabelDOM(selector) {
         const input = await this.driver.findElement(selector)
         const parent = await input.findElement(By.xpath('..'));
       
         await this.driver.executeScript('arguments[0].style.height = "auto"', parent);
         await this.driver.executeScript('arguments[0].style.overflow = "auto"', parent);
-    
+
+        return input
+    }
+
+    async performSendKeys(selector, value) {
+        const input = await this.modifyLabelDOM(selector)
         await input.sendKeys(value);
+    }
+
+    async santanderSelectDropdownValueIndustry(value){
+        const elements = await this.driver.findElements(this.santanderIndustryDropdownValueList);
+
+        if (value != 'randomChoice') {
+            for(let e of elements) {
+                if (await e.getText() == value) {
+                    e.click();
+                    break;
+                }
+            }
+        } else {
+            const randomChoice = await testData.getRandomInt(elements.length)
+            elements[randomChoice].click()
+        }
+        
+    }
+
+    async santanderPerformSelectDropdownIndustry(fieldName, value){
+        const targetDropdown = await this.santanderFormRegistrationChevronDropdown(fieldName);
+        await this.modifyLabelDOM(targetDropdown);
+        await this.driver.findElement(targetDropdown).click()
+        await this.santanderSelectDropdownValueIndustry(value);
     }
 
     async inputFirstAndLastNameField(firstName, lastName) {
@@ -76,12 +132,33 @@ class LoginPage extends BasePage {
         await this.driver.findElement(this.signUpForFreeBtn).click()
     }
 
-    async inputCompanyName(company){
-        await this.performSendKeys(this.companyNameField, company);
+    async inputCompanyName(company, page){
+        let selector = {}
+        if (page == 'fashion') {
+            selector = this.companyNameField
+        }
+
+        if (page == 'santander') {
+            selector = await this.santanderCompanyNameLabel
+        }
+
+        await this.performSendKeys(selector, company);
     }
 
-    async inputPhoneNumber(phoneNumber){
-        await this.performSendKeys(this.phoneNumberField, phoneNumber);
+    async inputPhoneNumber(phoneNumber, page){
+        let selector = {}
+        if (page == 'fashion') {
+            selector = this.phoneNumberField
+        }
+
+        if (page == 'santander') {
+            selector = await this.santanderPhoneNumberLabel
+        }
+        await this.performSendKeys(selector, phoneNumber);
+    }
+
+    async inputVATNumber(vatNumber){
+        await this.performSendKeys(await this.santanderVATNumberLabel, vatNumber);
     }
 
     async isElementLocated(locator){
@@ -109,4 +186,4 @@ class LoginPage extends BasePage {
     }
 };
 
-module.exports = new LoginPage();
+module.exports = LoginPage;

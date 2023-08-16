@@ -8,6 +8,7 @@ class TestData {
         this.password = "Qwertyuiop1!",
         this.companyName = "King Enterprise",
         this.phoneNumber = "123456789"
+        this.vatNumber = this.getRandomInt(10000000000)
     }
 
     async getRandomInt(max) {
@@ -15,8 +16,12 @@ class TestData {
       }
 
     async emailGenerator(){
-        const numerator = await this.getRandomInt(1000);
-        return randomEmail({domain: `exampleJ${numerator}.com`});
+        const numerator = await this.getRandomInt(100000);
+        return randomEmail({domain: `${
+            await this.getRandomInt(10000)
+        }exampleJ${
+            await this.getRandomInt(100000)
+        }.com`});
     }
 
     async refreshEmail(){

@@ -11,8 +11,14 @@ function buildDriver(){
         "disable-translate",
         "disable-popup-blocking",
         "disable-geolocation",
-        "ignore-certificate-errors"
+        "ignore-certificate-errors",
+        "--password-store=basic", //Chrome will not asking to save password
     ]);
+    //Chrome will not asking to save password
+    options.setUserPreferences({
+        'credentials_enable_service': false,
+        'profile.password_manager_enabled': false
+    });
     options.excludeSwitches([
         'enable-logging',
         'enable-automation'
@@ -29,9 +35,7 @@ class BasePage {
     constructor(){
         this.driver = buildDriver();
     }
-    async goToUrl(url){
-        await this.driver.get(url);
-    }
+
     async closeBrowser(){
         await this.driver.quit();
     }

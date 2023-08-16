@@ -1,14 +1,24 @@
 const { By } = require('selenium-webdriver');
 const { until } = require('selenium-webdriver');
-let BasePage = require('../pages/base-page.js');
-const WAITING_ELEMENT_TIMEOUT = 15000 //milis
+const WAITING_ELEMENT_TIMEOUT = 30000 //milis
 
-class DashboardPage extends BasePage {
-    constructor(){
-        super()
+class DashboardPage {
+    constructor(driver){
+        this.driver = driver
         this.welcomeMessage = By.css('div[class=welcome-screen-content-title]');
         this.welcomeMessageDescription = By.css('div[class=welcome-screen-content-description]');
-        this.welcomeScreenGetStartedButton = By.css('div[class=welcome-screen-content-button]');
+        this.welcomeScreenGetStartedButton = By.css('button[class=welcome-screen-content-button]');
+
+        this.widgetTransactions = this.widgetLocator('Transactions');
+        this.widgetCheckout = this.widgetLocator('Checkout');
+        this.widgetConnect = this.widgetLocator('Connect');
+        this.widgetProducts = this.widgetLocator('Products');
+        this.widgetShops = this.widgetLocator('Shop');
+        this.widgetMessage = this.widgetLocator('Messege'); //not exist
+        this.widgetSettings = this.widgetLocator('Settings');
+
+        this.widgetPointOfSaleFashion = this.widgetLocator('Point Of Sale');
+        this.widgetPointOfSaleSantander = this.widgetLocator('Point of Sale');
     }
 
     async elementPageVariablesFirstScreen(){
@@ -17,6 +27,32 @@ class DashboardPage extends BasePage {
             this.welcomeMessageDescription,
             this.welcomeScreenGetStartedButton
         ]
+        return pageVariables
+    }
+
+    async widgetLocator(textValue){
+        return By.xpath(`//div[contains(text(),'${textValue}')]`);
+    }
+
+    async elementPageVariablesWidgets(value){
+        const pageVariables = [
+            await this.widgetTransactions,
+            await this.widgetConnect,
+            await this.widgetCheckout,
+            await this.widgetSettings
+        ]
+
+        if (value == 'Fashion') {
+            pageVariables.push(await this.widgetProducts);
+            pageVariables.push(await this.widgetShops);
+            pageVariables.push(await this.widgetMessage);
+        }
+
+        if (value == 'Santander') {
+            pageVariables.push(await this.widgetPointOfSaleSantander);
+        }
+
+
         return pageVariables
     }
 
@@ -46,4 +82,4 @@ class DashboardPage extends BasePage {
     }
 }
 
-module.exports = new DashboardPage();
+module.exports = DashboardPage;
