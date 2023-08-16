@@ -1,5 +1,5 @@
 let varLoginPage = require('../pages/login-page.js');
-let testData = require('../data/test-data.js');
+let varTestData = require('../data/test-data.js');
 let varDashboardPage = require('../pages/dashboard-page.js');
 let varBasePage = require('../pages/base-page.js');
 
@@ -10,17 +10,18 @@ let dashboardPage = {}
 
 describe('Login Page Test', function() {
     beforeEach(async function() {
-        basePage = new varBasePage()
-        loginPage = new varLoginPage(basePage.driver)
-        dashboardPage = new varDashboardPage(basePage.driver)
+        basePage = new varBasePage();
+        loginPage = new varLoginPage(basePage.driver);
+        dashboardPage = new varDashboardPage(basePage.driver);
+        testData = new varTestData();
     });
 
     afterEach(async function() {
-        // basePage.closeBrowser();
+        basePage.closeBrowser();
     });
 
     after(async function(){
-        // basePage.closeBrowser();
+        basePage.closeBrowser();
     });
 
     it('TestCase 1 - Fashion', async function() {
@@ -43,7 +44,7 @@ describe('Login Page Test', function() {
         await sleep(5);
     });
 
-    it.only('TestCase 1 - Santander', async function() {
+    it('TestCase 2 - Santander', async function() {
         await loginPage.goToPage("santander");
         
         expect(await validateFirstScreen(loginPage)).equal(true);
