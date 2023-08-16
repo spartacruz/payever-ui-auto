@@ -1,4 +1,5 @@
 const randomEmail = require('random-email');
+var crypto = require("crypto");
 
 class TestData {
     constructor(){
@@ -18,10 +19,12 @@ class TestData {
     async emailGenerator(){
         const numerator = await this.getRandomInt(100000);
         return randomEmail({domain: `${
-            await this.getRandomInt(10000)
-        }exampleJ${
             await this.getRandomInt(100000)
-        }.com`});
+        }e${
+            crypto.randomBytes(10).toString('hex')
+        }J${
+            await this.getRandomInt(100000)
+        }.jodie`});
     }
 
     async refreshEmail(){
@@ -29,4 +32,4 @@ class TestData {
     }
 }
 
-module.exports = new TestData();
+module.exports = TestData;
