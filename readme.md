@@ -3,8 +3,6 @@
 
 ## About The Project
 This project was intended to fulfill the requirement from Payever recruiter, technical test
-<br>
-Not yet ready, still on development
 
 ## Stacks
 1. `mocha` as a test framework
