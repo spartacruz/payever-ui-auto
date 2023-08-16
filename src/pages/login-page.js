@@ -1,7 +1,9 @@
 const { By } = require('selenium-webdriver');
 const { until } = require('selenium-webdriver');
-let testData = require('../data/test-data.js');
+const varTestData = require('../data/test-data.js');
 const WAITING_ELEMENT_TIMEOUT = 15000 //milis
+
+const testData = new varTestData();
 
 class LoginPage {
     constructor(driver){
